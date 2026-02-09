@@ -2,7 +2,6 @@ from flask import Flask, render_template, request, jsonify
 
 app = Flask(__name__)
 
-# Initial Data (Starting point)
 auction_data = {
     "player_name": "New Player",
     "base_price": 100,
@@ -31,7 +30,6 @@ def update_player():
 def place_bid():
     new_bid = int(request.form.get('bid_amount'))
     bidder_name = request.form.get('bidder_name')
-    
     if new_bid > auction_data['current_bid']:
         auction_data['current_bid'] = new_bid
         auction_data['highest_bidder'] = bidder_name
