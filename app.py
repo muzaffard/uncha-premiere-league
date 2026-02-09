@@ -1,40 +1,33 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template
+from flask_socketio import SocketIO, emit
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = 'ipl_secret!'
+socketio = SocketIO(app, cors_allowed_origins="*")
 
+# Shuruati data
 auction_data = {
-    "player_name": "Waiting for Admin...",
-    "base_price": 0,
-    "current_bid": 0,
-    "highest_bidder": "None",
-    "league_name": "Uncha Premiere League"
+    "player_name": "MS Dhoni",
+    "current_bid": 200,
+    "current_team": "None",
+    "status": "In Progress"
 }
 
 @app.route('/')
-def home():
+def index():
     return render_template('index.html', data=auction_data)
 
 @app.route('/admin')
 def admin():
     return render_template('admin.html', data=auction_data)
 
-@app.route('/update_player', methods=['POST'])
-def update_player():
-    auction_data['player_name'] = request.form.get('player_name')
-    auction_data['base_price'] = int(request.form.get('base_price'))
-    auction_data['current_bid'] = int(request.form.get('base_price'))
-    auction_data['highest_bidder'] = "None"
-    return "Player Updated! <a href='/admin'>Go Back</a>"
-
-@app.route('/place_bid', methods=['POST'])
-def place_bid():
-    new_bid = int(request.form.get('bid_amount'))
-    bidder_name = request.form.get('bidder_name')
-    if new_bid > auction_data['current_bid']:
-        auction_data['current_bid'] = new_bid
-        auction_data['highest_bidder'] = bidder_name
-        return jsonify({"success": True})
-    return jsonify({"success": False})
+@socketio.on('place_bid')
+def handle_bid(data):
+    global auction_data
+    auction_data['current_bid'] = data['bid_amount']
+    auction_data['current_team'] = data['team_name']
+    # Sabhi users ko live update bhejna
+    emit('bid_update', auction_data, broadcast=True)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    socketio.run(app, host='0.0.0.0', port=8080)
