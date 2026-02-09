@@ -1,69 +1,23 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UPL Auction 2026</title>
-    <style>
-        body { font-family: 'Segoe UI', sans-serif; text-align: center; background-color: #0d1b2a; color: white; padding: 20px; }
-        .title { color: #e0e1dd; font-size: 2.2em; margin-bottom: 5px; }
-        .sub-title { color: #778da9; margin-bottom: 30px; }
-        .card { background: #1b263b; max-width: 450px; margin: auto; padding: 30px; border-radius: 20px; border: 3px solid #415a77; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .player-name { font-size: 2.5em; color: #e0e1dd; margin: 10px 0; }
-        .bid-info { background: #415a77; padding: 20px; border-radius: 15px; margin: 20px 0; }
-        .price { font-size: 2em; color: #57cc99; font-weight: bold; }
-        input { width: 85%; padding: 12px; margin: 10px 0; border-radius: 8px; border: none; font-size: 1em; }
-        .btn-bid { background: #57cc99; color: #0d1b2a; padding: 15px; width: 60%; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 1.1em; }
-        .btn-pass { background: #ef233c; color: white; padding: 15px; width: 30%; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-left: 5px; }
-        #msg { margin-top: 15px; font-weight: bold; }
-    </style>
+    <title>IPL Auction Live</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
 </head>
-<body>
-    <h1 class="title">🏆 UNCHA PREMIERE LEAGUE</h1>
-    <p class="sub-title">UPL Auction 2026 - Official Bidding Center</p>
-
-    <div class="card">
-        <div class="player-name">{{ data.player_name }}</div>
-        <p>Base Price: ₹{{ data.base_price }} Cr</p>
-        
-        <div class="bid-info">
-            <div>Current Bid: <span class="price" id="current-bid">₹{{ data.current_bid }}</span> Cr</div>
-            <div>Highest Bidder: <b id="highest-bidder" style="color:#ffb703">{{ data.highest_bidder }}</b></div>
-        </div>
-
-        <input type="text" id="user_name" placeholder="Team ka Naam">
-        <input type="number" id="bid_val" placeholder="Boli ki raqam (Cr)">
-        <div id="msg"></div>
-
-        <div style="display: flex; justify-content: center; margin-top: 10px;">
-            <button class="btn-bid" onclick="sendBid()">PLACE BID</button>
-            <button class="btn-pass" onclick="alert('Aapne pass kar diya!')">PASS</button>
-        </div>
+<body style="text-align: center; font-family: sans-serif; background: #001f3f; color: white;">
+    <h1>IPL AUCTION 2026 - LIVE</h1>
+    <div style="border: 2px solid yellow; padding: 20px; display: inline-block;">
+        <h2 id="player_name">{{ data.player_name }}</h2>
+        <h3 style="color: #00ff00;">Current Bid: <span id="bid_display">{{ data.current_bid }}</span> Lakhs</h3>
+        <h3 id="team_display">Team: {{ data.current_team }}</h3>
     </div>
 
     <script>
-        function sendBid() {
-            const name = document.getElementById('user_name').value;
-            const amount = document.getElementById('bid_val').value;
-            if(!name || !amount) { alert("Sari details bharein!"); return; }
-
-            const formData = new FormData();
-            formData.append('bidder_name', name);
-            formData.append('bid_amount', amount);
-
-            fetch('/place_bid', { method: 'POST', body: formData })
-            .then(res => res.json())
-            .then(data => {
-                const msg = document.getElementById('msg');
-                if(data.success) {
-                    document.getElementById('current-bid').innerText = '₹' + data.new_bid;
-                    document.getElementById('highest-bidder').innerText = data.bidder;
-                    msg.style.color = "#57cc99"; msg.innerText = "Boli Accepted!";
-                } else {
-                    msg.style.color = "#ef233c"; msg.innerText = data.message;
-                }
-            });
-        }
+        var socket = io();
+        socket.on('bid_update', function(data) {
+            document.getElementById('bid_display').innerText = data.current_bid;
+            document.getElementById('team_display').innerText = "Team: " + data.current_team;
+        });
     </script>
 </body>
 </html>
