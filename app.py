@@ -3,9 +3,9 @@ from flask import Flask, render_template, request, jsonify
 app = Flask(__name__)
 
 auction_data = {
-    "player_name": "New Player",
-    "base_price": 100,
-    "current_bid": 100,
+    "player_name": "Waiting for Admin...",
+    "base_price": 0,
+    "current_bid": 0,
     "highest_bidder": "None",
     "league_name": "Uncha Premiere League"
 }
@@ -24,7 +24,7 @@ def update_player():
     auction_data['base_price'] = int(request.form.get('base_price'))
     auction_data['current_bid'] = int(request.form.get('base_price'))
     auction_data['highest_bidder'] = "None"
-    return jsonify({"success": True})
+    return "Player Updated! <a href='/admin'>Go Back</a>"
 
 @app.route('/place_bid', methods=['POST'])
 def place_bid():
@@ -33,8 +33,8 @@ def place_bid():
     if new_bid > auction_data['current_bid']:
         auction_data['current_bid'] = new_bid
         auction_data['highest_bidder'] = bidder_name
-        return jsonify({"success": True, "new_bid": new_bid, "bidder": bidder_name})
-    return jsonify({"success": False, "message": "Boli kam hai!"})
+        return jsonify({"success": True})
+    return jsonify({"success": False})
 
 if __name__ == '__main__':
     app.run(debug=True)
