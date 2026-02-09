@@ -3,20 +3,46 @@
 <head>
     <title>IPL Auction Live</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <style>
+        body { background: #001f3f; color: white; font-family: 'Arial', sans-serif; display: flex; height: 100vh; margin: 0; }
+        .main-card { flex: 2; display: flex; flex-direction: column; align-items: center; justify-content: center; border-right: 2px solid #ffd700; }
+        .sidebar { flex: 1; background: rgba(0,0,0,0.5); padding: 20px; overflow-y: auto; }
+        .bid-box { background: #002d5b; padding: 30px; border-radius: 15px; border: 3px solid #ffd700; text-align: center; }
+        .log-entry { background: #004080; padding: 10px; margin-bottom: 5px; border-left: 5px solid #00ff00; font-size: 0.9em; }
+        .pass-entry { border-left: 5px solid #ff4d4d; }
+    </style>
 </head>
-<body style="text-align: center; font-family: sans-serif; background: #001f3f; color: white;">
-    <h1>IPL AUCTION 2026 - LIVE</h1>
-    <div style="border: 2px solid yellow; padding: 20px; display: inline-block;">
-        <h2 id="player_name">{{ data.player_name }}</h2>
-        <h3 style="color: #00ff00;">Current Bid: <span id="bid_display">{{ data.current_bid }}</span> Lakhs</h3>
-        <h3 id="team_display">Team: {{ data.current_team }}</h3>
+<body>
+    <div class="main-card">
+        <h1>IPL 2026 LIVE AUCTION</h1>
+        <div class="bid-box">
+            <h2 id="player_name">{{ data.player_name }}</h2>
+            <h1 style="color: #00ff00; font-size: 3em;"><span id="bid_display">{{ data.current_bid }}</span> L</h1>
+            <h3 id="team_display">Current Highest Bidder: {{ data.current_team }}</h3>
+        </div>
+    </div>
+
+    <div class="sidebar">
+        <h3>LIVE BIDDING LOG</h3>
+        <div id="history_logs">
+            {% for log in data.history %}
+                <div class="log-entry">{{ log }}</div>
+            {% endfor %}
+        </div>
     </div>
 
     <script>
         var socket = io();
-        socket.on('bid_update', function(data) {
+        socket.on('update_all', function(data) {
             document.getElementById('bid_display').innerText = data.current_bid;
-            document.getElementById('team_display').innerText = "Team: " + data.current_team;
+            document.getElementById('team_display').innerText = "Current Highest Bidder: " + data.current_team;
+            
+            let logsHtml = "";
+            data.history.forEach(log => {
+                let style = log.includes('Pass') ? 'log-entry pass-entry' : 'log-entry';
+                logsHtml += `<div class="${style}">${log}</div>`;
+            });
+            document.getElementById('history_logs').innerHTML = logsHtml;
         });
     </script>
 </body>
