@@ -3,19 +3,29 @@
 <head>
     <title>Auction Admin</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <style>
+        body { text-align: center; font-family: sans-serif; padding-top: 50px; }
+        button { padding: 15px 30px; font-size: 1.2em; cursor: pointer; margin: 10px; border-radius: 10px; }
+        .btn-bid { background-color: #28a745; color: white; border: none; }
+        .btn-pass { background-color: #dc3545; color: white; border: none; }
+        input { padding: 10px; width: 200px; font-size: 1em; }
+    </style>
 </head>
-<body style="text-align: center; font-family: sans-serif;">
-    <h1>Admin Control Panel</h1>
-    <input type="text" id="team_name" placeholder="Enter Team Name"><br><br>
-    <input type="number" id="bid_amount" placeholder="Enter Bid Amount"><br><br>
-    <button onclick="sendBid()">Update Bid for Everyone</button>
+<body>
+    <h1>Auction Control Panel</h1>
+    <input type="text" id="team_name" placeholder="Team Name (e.g. RCB)"><br><br>
+    <input type="number" id="bid_amount" placeholder="Bid Amount (Lakhs)"><br><br>
+    
+    <button class="btn-bid" onclick="sendAction('bid')">🔨 Place Bid</button>
+    <button class="btn-pass" onclick="sendAction('pass')">❌ Pass</button>
 
     <script>
         var socket = io();
-        function sendBid() {
+        function sendAction(type) {
             var team = document.getElementById('team_name').value;
             var amount = document.getElementById('bid_amount').value;
-            socket.emit('place_bid', {team_name: team, bid_amount: amount});
+            if(!team) { alert("Team name dalo!"); return; }
+            socket.emit('action', {type: type, team_name: team, amount: amount});
         }
     </script>
 </body>
